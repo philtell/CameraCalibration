@@ -1,0 +1,3 @@
+/home/philtell/CLionProjects/Camera_calibration/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/philtell/CLionProjects/Camera_calibration/cmake-build-debug/CMakeFiles/Camera_calibration.dir
+/home/philtell/CLionProjects/Camera_calibration/cmake-build-debug/CMakeFiles/edit_cache.dir
