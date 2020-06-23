@@ -3,6 +3,7 @@
 #include <string>
 #include <ctime>
 #include <cstdio>
+#include <iomanip>
 
 #include <opencv2/core.hpp>
 #include <opencv2/core/utility.hpp>
@@ -114,23 +115,23 @@ public:
             }
             else
             {  //输入 不是相机
-                if (isListOfImages(input) && readStringList(input, imageList))
+                if (isListOfImages(input) && readStringList(input, imageList)) //判断是否是图片列表，如果是图片列表，将图片列表读取到imageList中
                 {
                     inputType = IMAGE_LIST;
-                    nrFrames = (nrFrames < (int)imageList.size()) ? nrFrames : (int)imageList.size();
+                    nrFrames = (nrFrames < (int)imageList.size()) ? nrFrames : (int)imageList.size();  //两者之间取最小值
                 }
                 else
-                    inputType = VIDEO_FILE;
+                    inputType = VIDEO_FILE; //输入类型为是视频文件。
             }
-            if (inputType == CAMERA)
-                inputCapture.open(cameraID);
-            if (inputType == VIDEO_FILE)
+            if (inputType == CAMERA) //如果输入类型为相机ID
+                inputCapture.open(cameraID);  //那就打开相机
+            if (inputType == VIDEO_FILE) //如果输入类型是视频文件，那么就打开视频
                 inputCapture.open(input);
-            if (inputType != IMAGE_LIST && !inputCapture.isOpened())
-                inputType = INVALID;
+            if (inputType != IMAGE_LIST && !inputCapture.isOpened()) //如果输入的类型是不是图片列表，同时inputCapture也不是打开状态，那么输入类型无效
+            {inputType = INVALID;}
         }
 
-        if (inputType == INVALID)
+        if (inputType == INVALID) //如果输入类型无效
         {
             cerr << " Input does not exist: " << input;
             goodInput = false;
@@ -146,9 +147,9 @@ public:
         if(fixK4)                  flag |= CALIB_FIX_K4;
         if(fixK5)                  flag |= CALIB_FIX_K5;
 
-        if (useFisheye) {
+        if (useFisheye) { //使用鱼眼相机
             // the fisheye model has its own enum, so overwrite the flags
-            flag = fisheye::CALIB_FIX_SKEW | fisheye::CALIB_RECOMPUTE_EXTRINSIC;
+            flag = fisheye::CALIB_FIX_SKEW | fisheye::CALIB_RECOMPUTE_EXTRINSIC; //重新给flag赋值
             if(fixK1)                   flag |= fisheye::CALIB_FIX_K1;
             if(fixK2)                   flag |= fisheye::CALIB_FIX_K2;
             if(fixK3)                   flag |= fisheye::CALIB_FIX_K3;
@@ -156,7 +157,7 @@ public:
             if (calibFixPrincipalPoint) flag |= fisheye::CALIB_FIX_PRINCIPAL_POINT;
         }
 
-        calibrationPattern = NOT_EXISTING;
+        calibrationPattern = NOT_EXISTING;  //标定文件图案不存在
         if (!patternToUse.compare("CHESSBOARD")) calibrationPattern = CHESSBOARD;
         if (!patternToUse.compare("CIRCLES_GRID")) calibrationPattern = CIRCLES_GRID;
         if (!patternToUse.compare("ASYMMETRIC_CIRCLES_GRID")) calibrationPattern = ASYMMETRIC_CIRCLES_GRID;
@@ -171,7 +172,7 @@ public:
     Mat nextImage()
     {
         Mat result;
-        if( inputCapture.isOpened() )
+        if( inputCapture.isOpened())
         {
             Mat view0;
             inputCapture >> view0;
@@ -187,14 +188,14 @@ public:
     {
         l.clear();
         FileStorage fs(filename, FileStorage::READ);
-        if( !fs.isOpened() )
+        if( !fs.isOpened() ) //传入的文件打不开，就退出
             return false;
         FileNode n = fs.getFirstTopLevelNode();
-        if( n.type() != FileNode::SEQ )
+        if( n.type() != FileNode::SEQ ) //传入的文件不是队列就退出
             return false;
-        FileNodeIterator it = n.begin(), it_end = n.end();
+        FileNodeIterator it = n.begin(), it_end = n.end(); //it是队列开头，it_end是队列结尾
         for( ; it != it_end; ++it )
-            l.push_back((string)*it);
+            l.push_back((string)*it); //一直想l中添加图片路径
         return true;
     }
 
@@ -232,7 +233,7 @@ public:
     int cameraID;
     vector<string> imageList;
     size_t atImageList;
-    VideoCapture inputCapture;
+    VideoCapture inputCapture; //从视频文件，图像序列和相机中捕获视频的类
     InputType inputType;
     bool goodInput;
     int flag;
@@ -293,7 +294,6 @@ int main(int argc, char* argv[])
     Size imageSize;
     // 如果输入类型是图像, 那么就进行捕捉,否则就开始检测
     int mode = s.inputType == Settings::IMAGE_LIST ? CAPTURING : DETECTION;
-    int showMeTheCode = Settings::IMAGE_LIST?3:2;
 
     clock_t prevTimestamp = 0;
     const Scalar RED(0,0,255), GREEN(0,255,0);
@@ -392,7 +392,7 @@ int main(int argc, char* argv[])
             if(s.showUndistorsed)
                 msg = format( "%d/%d Undist", (int)imagePoints.size(), s.nrFrames );
             else
-                msg = format( "%d/%d", (int)imagePoints.size(), s.nrFrames );
+                msg = format( "%d/%d distorted", (int)imagePoints.size(), s.nrFrames );
         }
 
         putText( view, msg, textOrigin, 1, 1, mode == CALIBRATED ?  GREEN : RED);
