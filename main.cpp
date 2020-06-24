@@ -435,13 +435,15 @@ int main(int argc, char* argv[])
     if( s.inputType == Settings::IMAGE_LIST && s.showUndistorsed )
     {
         Mat view, rview, map1, map2;
-
+        map1 = Mat(imageSize,CV_16SC2);
+        map2 = Mat(imageSize,CV_16SC2);
+        Mat R = Mat::eye(3, 3, CV_32F);
         if (s.useFisheye)
         {
             Mat newCamMat;
             fisheye::estimateNewCameraMatrixForUndistortRectify(cameraMatrix, distCoeffs, imageSize,
                                                                 Matx33d::eye(), newCamMat, 1);
-            fisheye::initUndistortRectifyMap(cameraMatrix, distCoeffs, Matx33d::eye(), newCamMat, imageSize,
+            fisheye::initUndistortRectifyMap(cameraMatrix, distCoeffs,R, cameraMatrix, imageSize,
                                              CV_16SC2, map1, map2);
         }
         else
